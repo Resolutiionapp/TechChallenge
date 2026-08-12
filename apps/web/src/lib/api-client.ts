@@ -1,12 +1,17 @@
+import { getSessionToken } from './session';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:3000';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getSessionToken();
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
       'x-user-id': 'demo-user',
       'x-workspace-ids': 'ws-1',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
   });

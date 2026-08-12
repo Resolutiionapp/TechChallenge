@@ -18,9 +18,14 @@ Please concentrate your review on these files. Everything else is supporting sca
 - `apps/api/src/tasks/tasks.service.ts`
 - `apps/api/src/tasks/tasks.repository.ts`
 - `apps/api/src/workspaces/workspaces.service.ts`
+- `apps/api/src/admin/admin.controller.ts`
+- `apps/api/src/admin/admin.service.ts`
+- `apps/api/src/admin/admin-notifier.ts`
 - `apps/web/src/hooks/use-tasks.ts`
 - `apps/web/src/components/task-board.tsx`
 - `apps/web/src/components/task-card.tsx`
+- `apps/web/src/app/admin/page.tsx`
+- `apps/web/src/lib/api-client.ts`
 
 ## What we're looking for
 

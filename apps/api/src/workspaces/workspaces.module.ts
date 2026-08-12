@@ -8,5 +8,6 @@ import { TasksModule } from '../tasks/tasks.module';
   imports: [TasksModule],
   controllers: [WorkspacesController],
   providers: [WorkspacesService, WorkspacesRepository],
+  exports: [WorkspacesRepository],
 })
 export class WorkspacesModule {}
