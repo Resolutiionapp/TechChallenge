@@ -10,6 +10,8 @@ A small Nx monorepo modelling a basic task-tracking tool:
 
 This isn't a "spot the typo" exercise, and it isn't a scavenger hunt across the whole repo either. Treat it like a real pull request that's about to be merged: read the files below the way you would before approving them in production, and tell us what you wouldn't be comfortable shipping.
 
+This is a live walkthrough, not a take-home — you'll go through it out loud with an interviewer, not write anything up and submit it afterward.
+
 ## Files to focus on
 
 Everything we're testing lives in these files. Following an import one hop outside this list (e.g. from a controller into the guard or DTO it uses) is expected and normal — that's just reading the code you're reviewing.
@@ -61,35 +63,21 @@ Don't spend time on these — they're plumbing, and nothing in them is part of t
 - Prioritisation. Finding ten things and correctly telling us which two are "block this PR" and which eight are "comment and approve anyway" is worth more to us than finding all ten with no sense of severity.
 - Clarity in how you write it up — file, location, what's wrong, why it matters, what you'd do about it. We're evaluating the review, not just the bug list.
 
-**We don't care about:**
+**We don't care about — the only real exceptions:**
 
-- Formatting, naming preferences, or anything a linter would fix by itself — there's no enforced style here, don't spend time on it.
-- That authentication is simulated via request headers instead of real tokens/sessions, or that the Prisma schema/migrations themselves are minimal. Both are deliberate simplifications so the exercise doesn't require building a real auth system — they are not themselves bugs to report. (The one exception: if a real issue is layered on top of one of these — e.g. how a session value gets stored — that's fair game. We'll make it obvious when that's the case rather than let you guess.) The database itself is real Postgres, not simulated — if something would be a performance or concurrency problem against a real database, it's a real finding here too.
-- Whether you get the whole thing running perfectly. A static review is enough on its own.
-- Visual design — the UI is deliberately bare.
-- Writing or fixing tests. Not part of the ask, though a one-line "this has no test coverage and should" is fine if it's genuinely one of your top points.
-- General Nx/monorepo tooling correctness. We're not testing Nx expertise as a whole — only whatever specific issue you actually notice while reading the code.
+- Formatting, naming, or anything a linter would catch by itself — there's no enforced style here.
+- Visual polish — the UI is deliberately bare.
+- Whether you'd also add test coverage. Not part of the ask, though it's worth a mention if it's genuinely your top point.
 
-## What to hand back
+Outside of those three, if something's wrong, we want to hear it — including things like the auth mechanism being header-based, or anything else that isn't on the planted-bug list. Don't pre-judge what counts; that's exactly the kind of judgement we're trying to see.
 
-For each issue you flag, tell us:
+## What we're looking for
+
+For each issue you raise, out loud:
 
 1. Where it is (file + rough location)
 2. What's actually wrong with it, and why it matters
 3. What you'd change
-
-## Running it
-
-Requires Docker.
-
-    pnpm install
-    cp .env.example .env
-    pnpm db:up       # starts Postgres on :5433
-    pnpm db:migrate  # applies the schema and seeds sample data
-    pnpm dev:api     # NestJS on :3000
-    pnpm dev:web     # Next.js on :4200
-
-Running it is optional — a static review is enough on its own — but a couple of the issues (the ones involving concurrent requests) are easier to convince yourself of by actually reproducing them against the real database than by reading alone.
 
 ## Time
 
