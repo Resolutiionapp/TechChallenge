@@ -47,6 +47,8 @@ Don't spend time on these — they're plumbing, and nothing in them is part of t
 - `apps/api/src/auth/current-user.decorator.ts`, `apps/api/src/common/audit-log.repository.ts`
 - `apps/api/src/workspaces/workspaces.controller.ts`, `workspaces.module.ts`, `workspaces.repository.ts`
 - `apps/api/src/tasks/tasks.module.ts` and everything under `apps/api/src/tasks/dto/`
+- `apps/api/src/prisma/` (Prisma wiring) and `apps/api/prisma/` (schema, migrations, seed script)
+- `docker-compose.yml`, `.env.example`
 - `apps/web/src/app/layout.tsx`, `apps/web/src/app/page.tsx`, `apps/web/src/hooks/use-current-user.ts`, project/tsconfig/next.config files
 
 ## The rules: what we care about vs. what we don't
@@ -62,7 +64,7 @@ Don't spend time on these — they're plumbing, and nothing in them is part of t
 **We don't care about:**
 
 - Formatting, naming preferences, or anything a linter would fix by itself — there's no enforced style here, don't spend time on it.
-- The fact that "the database" is an in-memory array, or that authentication is simulated via request headers instead of real tokens/sessions. Both are deliberate simplifications so the exercise runs without any infrastructure — they are not themselves bugs to report. (The one exception: if a real issue is layered on top of one of these — e.g. how a session value gets stored — that's fair game. We'll make it obvious when that's the case rather than let you guess.)
+- That authentication is simulated via request headers instead of real tokens/sessions, or that the Prisma schema/migrations themselves are minimal. Both are deliberate simplifications so the exercise doesn't require building a real auth system — they are not themselves bugs to report. (The one exception: if a real issue is layered on top of one of these — e.g. how a session value gets stored — that's fair game. We'll make it obvious when that's the case rather than let you guess.) The database itself is real Postgres, not simulated — if something would be a performance or concurrency problem against a real database, it's a real finding here too.
 - Whether you get the whole thing running perfectly. A static review is enough on its own.
 - Visual design — the UI is deliberately bare.
 - Writing or fixing tests. Not part of the ask, though a one-line "this has no test coverage and should" is fine if it's genuinely one of your top points.
@@ -78,11 +80,16 @@ For each issue you flag, tell us:
 
 ## Running it
 
-    pnpm install
-    pnpm dev:api   # NestJS on :3000
-    pnpm dev:web   # Next.js on :4200
+Requires Docker.
 
-Running it is optional — a static review is enough — but it may help you confirm a hypothesis.
+    pnpm install
+    cp .env.example .env
+    pnpm db:up       # starts Postgres on :5433
+    pnpm db:migrate  # applies the schema and seeds sample data
+    pnpm dev:api     # NestJS on :3000
+    pnpm dev:web     # Next.js on :4200
+
+Running it is optional — a static review is enough on its own — but a couple of the issues (the ones involving concurrent requests) are easier to convince yourself of by actually reproducing them against the real database than by reading alone.
 
 ## Time
 

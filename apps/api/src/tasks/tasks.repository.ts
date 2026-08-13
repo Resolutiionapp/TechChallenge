@@ -1,88 +1,69 @@
 import { Injectable } from '@nestjs/common';
-import type { Task } from '@techchallenge/shared-types';
-
-let TASKS: Task[] = [
-  {
-    id: 'task-1',
-    workspaceId: 'ws-1',
-    title: 'Design onboarding flow',
-    description: '',
-    status: 'todo',
-    assignee: null,
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'task-2',
-    workspaceId: 'ws-1',
-    title: 'Fix checkout bug',
-    description: '',
-    status: 'in_progress',
-    assignee: 'alice',
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'task-3',
-    workspaceId: 'ws-2',
-    title: 'Rotate deploy keys',
-    description: '',
-    status: 'todo',
-    assignee: null,
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-function simulateLatency(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, 15));
-}
+import type { Task, TaskStatus } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TasksRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
   async findAll(
     workspaceId: string,
     page: number,
     pageSize: number,
   ): Promise<{ items: Task[]; total: number }> {
-    await simulateLatency();
-    const inWorkspace = TASKS.filter((task) => task.workspaceId === workspaceId);
-    const start = page * pageSize;
+    const [items, total] = await Promise.all([
+      this.prisma.task.findMany({
+        where: { workspaceId },
+        skip: page * pageSize,
+        take: pageSize,
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.task.count({ where: { workspaceId } }),
+    ]);
 
-    return {
-      items: inWorkspace.slice(start, start + pageSize),
-      total: inWorkspace.length,
-    };
+    return { items, total };
   }
 
-  async findById(id: string): Promise<Task | undefined> {
-    await simulateLatency();
-    return TASKS.find((task) => task.id === id);
+  async findById(id: string): Promise<Task | null> {
+    return this.prisma.task.findUnique({ where: { id } });
   }
 
   async countByWorkspace(workspaceId: string): Promise<number> {
-    await simulateLatency();
-    return TASKS.filter((task) => task.workspaceId === workspaceId).length;
+    return this.prisma.task.count({ where: { workspaceId } });
   }
 
-  async create(task: Task): Promise<Task> {
-    await simulateLatency();
-    TASKS.push(task);
-    return task;
+  async create(data: {
+    id: string;
+    workspaceId: string;
+    title: string;
+    description: string;
+    status: TaskStatus;
+    assignee: string | null;
+  }): Promise<Task> {
+    return this.prisma.task.create({ data });
   }
 
-  async update(id: string, patch: Partial<Task>): Promise<Task | undefined> {
+  async update(id: string, patch: Record<string, unknown>): Promise<Task | null> {
     const existing = await this.findById(id);
     if (!existing) {
-      return undefined;
+      return null;
     }
 
-    await simulateLatency();
+    const merged = { ...existing, ...patch };
 
-    const updated: Task = { ...existing, ...patch, updatedAt: new Date().toISOString() };
-    TASKS = TASKS.map((task) => (task.id === id ? updated : task));
-    return updated;
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        workspaceId: merged.workspaceId as string,
+        title: merged.title as string,
+        description: merged.description as string,
+        status: merged.status as TaskStatus,
+        assignee: (merged.assignee ?? null) as string | null,
+      },
+    });
   }
 
   async remove(id: string): Promise<void> {
-    await simulateLatency();
-    TASKS = TASKS.filter((task) => task.id !== id);
+    await this.prisma.task.delete({ where: { id } });
   }
 }

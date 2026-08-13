@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { CurrentUserPayload, Task } from '@techchallenge/shared-types';
+import type { Task } from '@prisma/client';
+import type { CurrentUserPayload } from '@techchallenge/shared-types';
 import { TasksRepository } from './tasks.repository';
 import { AuditLogRepository } from '../common/audit-log.repository';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -32,7 +33,6 @@ export class TasksService {
       description: dto.description ?? '',
       status: dto.status ?? 'todo',
       assignee: dto.assignee ?? null,
-      updatedAt: new Date().toISOString(),
     });
 
     this.auditLog.record({ actorId: user.userId, action: 'task.create', targetId: task.id });
