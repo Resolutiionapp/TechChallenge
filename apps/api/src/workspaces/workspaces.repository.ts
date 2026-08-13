@@ -1,24 +1,16 @@
 import { Injectable } from '@nestjs/common';
-
-export interface WorkspaceRecord {
-  id: string;
-  name: string;
-}
-
-const WORKSPACES: WorkspaceRecord[] = [
-  { id: 'ws-1', name: 'Product' },
-  { id: 'ws-2', name: 'Platform' },
-];
+import type { Workspace } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class WorkspacesRepository {
-  async findAll(): Promise<WorkspaceRecord[]> {
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    return WORKSPACES;
+  constructor(private readonly prisma: PrismaService) {}
+
+  async findAll(): Promise<Workspace[]> {
+    return this.prisma.workspace.findMany();
   }
 
-  async findById(id: string): Promise<WorkspaceRecord | undefined> {
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    return WORKSPACES.find((workspace) => workspace.id === id);
+  async findById(id: string): Promise<Workspace | null> {
+    return this.prisma.workspace.findUnique({ where: { id } });
   }
 }

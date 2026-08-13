@@ -7,3 +7,5 @@ tmp
 *.log
 *.tsbuildinfo
 .DS_Store
+.env
+apps/api/prisma/.env
